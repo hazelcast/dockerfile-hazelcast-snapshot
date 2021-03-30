@@ -12,8 +12,7 @@ FROM openjdk:16
 COPY --from=build-env /app /opt/hazelcast
 WORKDIR /opt/hazelcast
 
-CMD [
-  "/usr/bin/java", \
+CMD [ "/usr/bin/java", \
   "--add-modules", "java.se", \
   "--add-exports", "java.base/jdk.internal.ref=ALL-UNNAMED", \
   "--add-opens", "java.base/java.lang=ALL-UNNAMED", \
