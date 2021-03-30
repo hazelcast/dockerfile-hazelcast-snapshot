@@ -1,19 +1,16 @@
-FROM maven:3-openjdk-8 AS build-env
+FROM maven:3-openjdk-16 AS build-env
 
 ARG SOURCE_BRANCH=master
 
-RUN apt-get update && apt-get install -y git
-RUN git clone -b "$SOURCE_BRANCH" --depth 1 https://github.com/hazelcast/hazelcast.git
-RUN mvn -B -f hazelcast/pom.xml clean install -DskipTests && \
-  rm hazelcast/hazelcast-all/target/original-*.jar && \
-  rm hazelcast/hazelcast-all/target/*-sources.jar && \
+RUN git clone -b "experiments/5.0/uds" --depth 1 https://github.com/kwart/hazelcast.git
+RUN mvn -B -f hazelcast/pom.xml clean install -DskipTests -Dcheckstyle.skip && \
   mkdir /app && \
-  mv hazelcast/hazelcast-all/target/hazelcast-all-*.jar /app/hazelcast-all.jar
+  mv hazelcast/hazelcast/target/hazelcast-5.0-SNAPSHOT.jar /app/hazelcast.jar
 
 # https://github.com/GoogleContainerTools/distroless/tree/master/java
 # https://github.com/GoogleContainerTools/distroless/blob/master/examples/java/Dockerfile
 
-FROM gcr.io/distroless/java:11
+FROM openjdk:16
 COPY --from=build-env /app /opt/hazelcast
 WORKDIR /opt/hazelcast
 ENTRYPOINT ["/usr/bin/java", \
@@ -25,4 +22,4 @@ ENTRYPOINT ["/usr/bin/java", \
   "--add-opens", "java.management/sun.management=ALL-UNNAMED", \
   "--add-opens", "jdk.management/com.sun.management.internal=ALL-UNNAMED" ]
 
-CMD ["-jar", "hazelcast-all.jar"]
+CMD ["-jar", "hazelcast.jar"]
