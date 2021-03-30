@@ -1,7 +1,5 @@
 FROM maven:3-openjdk-16 AS build-env
 
-ARG SOURCE_BRANCH=master
-
 RUN git clone -b "experiments/5.0/uds" --depth 1 https://github.com/kwart/hazelcast.git
 RUN mvn -B -f hazelcast/pom.xml clean install -DskipTests -Dcheckstyle.skip && \
   mkdir /app && \
